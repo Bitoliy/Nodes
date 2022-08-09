@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "-----------------------------------------------------------------------------"
-curl -s https://github.com/Bitoliy/Nodes/blob/b81ee0053210d00ad1545902b708f88e84af6a5e/ward_activity.sh | bash
+curl -s https://raw.githubusercontent.com//Bitoliy/Nodes/main/ward_activity.sh | bash
 echo "-----------------------------------------------------------------------------"
 
 echo "-----------------------------------------------------------------------------"
