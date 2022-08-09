@@ -1,0 +1,26 @@
+#!/bin/bash
+echo "-----------------------------------------------------------------------------"
+curl -s https://github.com/Bitoliy/Nodes/blob/b81ee0053210d00ad1545902b708f88e84af6a5e/ward_activity.sh | bash
+echo "-----------------------------------------------------------------------------"
+
+echo "-----------------------------------------------------------------------------"
+echo "Выполняем обновление"
+echo "-----------------------------------------------------------------------------"
+sudo systemctl stop sui
+rm -rf $HOME/.sui/db
+wget -qO $HOME/.sui/genesis.blob https://github.com/MystenLabs/sui-genesis/raw/main/devnet/genesis.blob
+#rm -rf sui
+#git clone https://github.com/MystenLabs/sui.git
+cd $HOME/sui
+git remote add upstream https://github.com/MystenLabs/sui
+git fetch upstream
+git checkout -B devnet --track upstream/devnet
+echo "-----------------------------------------------------------------------------"
+echo "Устанавливаем обновление"
+echo "-----------------------------------------------------------------------------"
+cargo build --release
+sudo mv $HOME/sui/target/release/{sui,sui-node,sui-faucet} /usr/bin/
+sudo systemctl restart sui
+echo "-----------------------------------------------------------------------------"
+echo "Обновление завершено"
+echo "-----------------------------------------------------------------------------"
