@@ -9,8 +9,6 @@ function colors {
 colors
 
 
-echo -e "${GREEN} ${NORMAL}"
-
 echo -e "${GREEN}              /$$      / $$                              /$$        ${NORMAL}"
 echo -e "${GREEN}             | $$      | $$                             | $$        ${NORMAL}"
 echo -e "${GREEN}             | $$      | $$  /$$$$$$ /$$  /$$$$$$   /$$$$$$$        ${NORMAL}"
