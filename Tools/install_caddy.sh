@@ -23,7 +23,7 @@ function grpc_port {
 }
 
 function logo {
-  curl -s https://raw.githubusercontent.com/razumv/helpers/main/doubletop.sh | bash
+  curl -s https://raw.githubusercontent.com/Bitoliy/Nodes/main/Tools/Ward_Activity.sh | bash
 }
 
 function line {
