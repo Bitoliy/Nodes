@@ -11,63 +11,29 @@ sleep 1
 echo 'export ALCHEMY_KEY='$ALCHEMY_KEY >> $HOME/.bash_profile
 echo "Устанавливаем софт"
 echo "-----------------------------------------------------------------------------"
-
-sudo apt update -y &>/dev/null
-sudo apt install build-essential libssl-dev libffi-dev python3-dev screen git python3-pip python3.*-venv -y &>/dev/null
-sudo apt-get install libgmp-dev -y &>/dev/null
-pip3 install fastecdsa &>/dev/null
-sudo apt-get install -y pkg-config &>/dev/null
-curl -s https://raw.githubusercontent.com/Bitoliy/Nodes/main/Tools/install_ufw.sh | bash &>/dev/null
-curl -s https://raw.githubusercontent.com/Bitoliy/Nodes/main/Tools/install_rust.sh | bash &>/dev/null
-rustup default nightly &>/dev/null
-source $HOME/.cargo/env &>/dev/null
+echo "Устанавливаем зависимости"
+bash <(curl -s https://raw.githubusercontent.com/Bitoliy/Nodes/main/Tools/main.sh) &>/dev/null
+bash <(curl -s https://raw.githubusercontent.com/Bitoliy/Nodes/main/Tools/install_docker.sh) &>/dev/null
+echo "-----------------------------------------------------------------------------"
+echo "Клонируем репрозиторий"
+echo "-----------------------------------------------------------------------------"
+git clone https://github.com/eqlabs/pathfinder.git
+cd $HOME/pathfinder
+git fetch
+git checkout `curl https://api.github.com/repos/eqlabs/pathfinder/releases/latest -s | jq .name -r`
+echo "-----------------------------------------------------------------------------"
+echo "Создаем env файл с переменной Alchemy или infura"
+echo "-----------------------------------------------------------------------------"
+source $HOME/.bash_profile
+echo "PATHFINDER_ETHEREUM_API_URL=$ALCHEMY_KEY" > pathfinder-var.env
+echo "-----------------------------------------------------------------------------"
+echo "Скачиваем последнюю версию docker image"
+docker-compose pull
+echo "Скачали, переходим к запуску"
+echo "-----------------------------------------------------------------------------"
+mkdir -p $HOME/pathfinder/pathfinder
+chown -R 1000.1000 .
 sleep 1
-echo "Весь необходимый софт установлен"
-echo "-----------------------------------------------------------------------------"
-
-git clone --branch v0.3.0-alpha https://github.com/eqlabs/pathfinder.git &>/dev/null
-cd pathfinder/py &>/dev/null
-python3 -m venv .venv &>/dev/null
-source .venv/bin/activate &>/dev/null
-PIP_REQUIRE_VIRTUALENV=true pip install --upgrade pip &>/dev/null
-PIP_REQUIRE_VIRTUALENV=true pip install -r requirements-dev.txt &>/dev/null
-cargo build --release --bin pathfinder &>/dev/null
-sleep 2
-source $HOME/.bash_profile &>/dev/null
-echo "Билд завершен успешно"
-echo "-----------------------------------------------------------------------------"
-
-sudo tee <<EOF >/dev/null /etc/systemd/journald.conf
-Storage=persistent
-EOF
-sudo systemctl restart systemd-journald
-
-sudo tee <<EOF >/dev/null /etc/systemd/system/starknet.service
-[Unit]
-Description=StarkNet Node
-After=network.target
-
-[Service]
-Type=simple
-User=$USER
-WorkingDirectory=$HOME/pathfinder/py
-Environment=PATH="$HOME/pathfinder/py/.venv/bin:\$PATH"
-ExecStart=$HOME/pathfinder/target/release/pathfinder --ethereum.url $ALCHEMY_KEY
-Restart=always
-RestartSec=10
-LimitNOFILE=10000
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-echo "Сервисные файлы созданы успешно"
-echo "-----------------------------------------------------------------------------"
-
-sudo systemctl restart systemd-journald &>/dev/null
-sudo systemctl daemon-reload &>/dev/null
-sudo systemctl enable starknet &>/dev/null
-sudo systemctl restart starknet &>/dev/null
-
-echo "Нода добавлена в автозагрузку на сервере, запущена"
+docker-compose up -d
+echo "Нода обновлена и запущена"
 echo "-----------------------------------------------------------------------------"
